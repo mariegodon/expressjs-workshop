@@ -346,8 +346,10 @@ module.exports = function RedditAPI(conn) {
                             }
                             return finalArr;
                         }, []);
+                    
+                    callback(null, result)    
                     }
-                    callback(null, result)
+                    
                 });
         },
         createOrUpdateVote: function(vote, callback) {

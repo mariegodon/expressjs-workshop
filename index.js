@@ -1,6 +1,7 @@
 // load the mysql library
 var mysql = require('mysql');
 var util = require('util');
+require('longjohn');
 
 // create a connection to our Cloud9 server
 var connection = mysql.createConnection({
@@ -138,7 +139,7 @@ app.get('/posts/:postId', function(req, res){
         if (err){
             res.status(500).send('Post does not exist!');
         } else {
-            res.end(JSON.stringify(post));
+            res.send(JSON.stringify(post));
         }
     });
 });
