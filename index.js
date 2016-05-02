@@ -14,9 +14,12 @@ var connection = mysql.createConnection({
 var reddit = require('./reddit');
 var redditAPI = reddit(connection);
 
-
 var express = require('express');
 var app = express();
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 app.get('/', function(req, res) {
     res.send('Hello World!');
@@ -110,6 +113,32 @@ app.get('/createContent', function(req, res){
             res.status(500).send('Error!');
         } else {
             return;
+        }
+    });
+});
+
+app.post('/createContent', function(req, res) {
+    redditAPI.createPost({
+        userId: 1,
+        title: req.body.title,
+        url: req.body.url}, 
+        function(err, result) {
+            if (err) {
+                res.status(500).send('Error!');
+            } else {
+                res.redirect(`../posts/${JSON.stringify(result.id)}`);
+            }
+        }
+    )
+});
+
+app.get('/posts/:postId', function(req, res){
+    var postId = Number(req.params.postId);
+    redditAPI.getSinglePost(postId, function(err, post){
+        if (err){
+            res.status(500).send('Post does not exist!');
+        } else {
+            res.end(JSON.stringify(post));
         }
     });
 });
