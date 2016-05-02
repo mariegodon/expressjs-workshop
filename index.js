@@ -9,7 +9,9 @@ app.get('/hello', function(req, res) {
     res.send('<h1>Hello World!</h1>')
 });
 
-
+app.get('/hello/:name', function(req, res) {
+    res.send(`<h1>Hello ${req.params.name}!</h1>`)
+});
 
 
 
