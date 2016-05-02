@@ -14,23 +14,31 @@ app.get('/hello/:name', function(req, res) {
 });
 
 function performOperation(op, num1, num2, callback){
+    var opObj = {
+        operator: op,
+        firstOperand: num1,
+        secondOperand: num2
+    }
+    
     switch (op) {
-        case "add": 
-            callback(null, num1 + num2);
+        case "add":
+            opObj.solution = num1 + num2;
             break;
         case "sub":
-            callback(null, num1 - num2); 
+            opObj.solution = num1 - num2;
             break;
         case "mult":
-            callback(null, num1 * num2);
+            opObj.solution = num1 * num2;
             break;
         case "div":
-            callback(null, num1/num2);
+            opObj.solution = num1/num2;
             break;
         default:
             callback(op);
-            break;
+            return;
     }
+    
+    callback(null, opObj);
 }
 
 app.get('/calculator/:operation', function(req, res) {
@@ -39,13 +47,14 @@ app.get('/calculator/:operation', function(req, res) {
     var num2 = Number(req.query.num2);
     performOperation(operation, num1, num2, function(err, result){
         if (err) {
-            console.log(err);
             res.status(500).send('Invalid operation!');
         } else {
-            res.send(`${result}`);
+            res.send(JSON.stringify(result));
         }
     });
 });
+
+
 
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
