@@ -104,6 +104,15 @@ app.get('/posts', function(req, res) {
     });
 });
 
+app.get('/createContent', function(req, res){
+    res.sendFile('./form.html', {root: __dirname}, function(err, result){
+        if (err) {
+            res.status(500).send('Error!');
+        } else {
+            return;
+        }
+    });
+});
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
