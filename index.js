@@ -1,6 +1,7 @@
 // load the mysql library
 var mysql = require('mysql');
 var util = require('util');
+var moment = require('moment');
 require('longjohn');
 
 // create a connection to our Cloud9 server
@@ -19,7 +20,9 @@ var express = require('express');
 var app = express();
 
 var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 app.use(bodyParser.json());
 
 app.get('/', function(req, res) {
@@ -68,31 +71,29 @@ app.get('/calculator/:operation', function(req, res) {
     var num2 = Number(req.query.num2);
     performOperation(operation, num1, num2, function(err, result) {
         if (err) {
-            res.status(500).send('Invalid operation!');
+            res.status(400).send('Invalid operation!');
         }
         else {
-            res.send(JSON.stringify(result));
+            res.send(result);
         }
     });
 });
 
 function postsInHTML(result) {
-    var i = 0;
     var htmlPosts = `<div> <h1>List of Posts</h1> <ul>`;
-    while (i < result.length) {
+    result.forEach(function(post) {
         var thisPostHtml =
-        `<li>
-            <h4>${JSON.stringify(result[i].title)} </h4>
-                <p>user: ${JSON.stringify(result[i].user.username)} <br>
-                    url: ${JSON.stringify(result[i].url)} <br>
-                    id: ${JSON.stringify(result[i].id)} <br>
-                    created at: ${JSON.stringify(result[i].createdAt)} <br>
+            `<li>
+            <h4>${post.title} </h4>
+                <p>user: ${post.user.username} <br>
+                    url: ${post.url} <br>
+                    id: ${post.id} <br>
+                    created at: ${moment(post.createdAt).fromNow()} <br>
                 </p>
-        </li>`
+        </li>`;
         htmlPosts += thisPostHtml;
-        i++
-    }
-    return (`${htmlPosts}</ul></h1></div>`)
+    });
+    return (`${htmlPosts}</ul></h1></div>`);
 }
 
 app.get('/posts', function(req, res) {
@@ -108,11 +109,14 @@ app.get('/posts', function(req, res) {
     });
 });
 
-app.get('/createContent', function(req, res){
-    res.sendFile('./form.html', {root: __dirname}, function(err, result){
+app.get('/createContent', function(req, res) {
+    res.sendFile('./form.html', {
+        root: __dirname
+    }, function(err, result) {
         if (err) {
             res.status(500).send('Error!');
-        } else {
+        }
+        else {
             return;
         }
     });
@@ -120,13 +124,16 @@ app.get('/createContent', function(req, res){
 
 app.post('/createContent', function(req, res) {
     redditAPI.createPost({
-        userId: 1,
-        title: req.body.title,
-        url: req.body.url}, 
+            userId: 1,
+            title: req.body.title,
+            url: req.body.url
+        },
         function(err, result) {
             if (err) {
+                console.log(err);
                 res.status(500).send('Error!');
-            } else {
+            }
+            else {
                 res.redirect(`../posts/${JSON.stringify(result.id)}`);
             }
         }
@@ -137,7 +144,7 @@ app.get('/posts/:postId', function(req, res){
     var postId = Number(req.params.postId);
     redditAPI.getSinglePost(postId, function(err, post){
         if (err){
-            res.status(500).send('Post does not exist!');
+            res.status(400).send('Post does not exist!');
         } else {
             res.send(JSON.stringify(post));
         }
